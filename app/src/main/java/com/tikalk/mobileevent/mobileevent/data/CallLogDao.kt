@@ -34,5 +34,4 @@ data class CallLogDao( var number: String?,
         values.put(CallLog.Calls.CACHED_NAME, name)
         return values
     }
-
 }

@@ -20,12 +20,13 @@ import android.support.test.rule.GrantPermissionRule
  */
 @RunWith(AndroidJUnit4::class)
 class CallLogTest {
-    private val TAG: String = "CallLogTest"
 
     lateinit var context : Context
     lateinit var manager : CallLogManager
 
-    @Rule @JvmField var permissionRule = GrantPermissionRule.grant(android.Manifest.permission.WRITE_CALL_LOG, android.Manifest.permission.READ_CALL_LOG)
+    @Rule @JvmField var permissionRule: GrantPermissionRule? =
+            GrantPermissionRule.grant(  android.Manifest.permission.WRITE_CALL_LOG,
+                                        android.Manifest.permission.READ_CALL_LOG)
 
     @Before
     fun setup() {
@@ -42,7 +43,4 @@ class CallLogTest {
         assertEquals("managed to write two records", manager.write(logs), 2)
         assertTrue("managed to read at least two records", manager.read().size >= 2)
     }
-
-
-
 }

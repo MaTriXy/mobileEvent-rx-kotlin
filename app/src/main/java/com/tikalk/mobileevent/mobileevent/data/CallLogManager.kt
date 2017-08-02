@@ -22,8 +22,7 @@ class CallLogManager(val context: Context) {
                 return ret
             }
             for(i in 0 .. cursor.count) {
-                val logItem = CallLogDao(cursor)
-                ret.add(logItem)
+                ret.add(CallLogDao(cursor))
             }
         } else  {
             Log.e(TAG, "permission READ_CALL_LOG not granted! Skipping query")
@@ -35,9 +34,7 @@ class CallLogManager(val context: Context) {
     fun write(logs: List<CallLogDao>): Int {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALL_LOG)) {
             val contentValues = ArrayList<ContentValues>()
-            for (log in logs) {
-                contentValues.add(log.toContentValues())
-            }
+            logs.mapTo(contentValues) { it.toContentValues() }
             val valuesArray = contentValues.toTypedArray()
             return context.contentResolver.bulkInsert(CallLog.Calls.CONTENT_URI, valuesArray)
         } else {

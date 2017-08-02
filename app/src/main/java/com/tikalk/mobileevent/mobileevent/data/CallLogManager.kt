@@ -40,7 +40,8 @@ class CallLogManager(val context: Context) {
             }
             val valuesArray = contentValues.toTypedArray()
             return context.contentResolver.bulkInsert(CallLog.Calls.CONTENT_URI, valuesArray)
-
+        } else {
+            Log.e(TAG, "permission WRITE_CALL_LOG not granted! Skipping insert")
         }
         return -1
     }

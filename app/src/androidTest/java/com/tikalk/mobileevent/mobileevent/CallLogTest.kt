@@ -12,7 +12,9 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 import org.junit.Rule
 import android.support.test.rule.GrantPermissionRule
-
+import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
+import kotlinx.coroutines.experimental.runBlocking
+import java.util.concurrent.CountDownLatch
 
 
 /**
@@ -42,5 +44,32 @@ class CallLogTest {
 
         assertEquals("managed to write two records", manager.write(logs), 2)
         assertTrue("managed to read at least two records", manager.read().size >= 2)
+    }
+
+    @Test
+     fun testAsync() = runBlocking<Unit> {
+        var logs = ArrayList<CallLogDao>()
+        var asyncError: String? = null
+        var job = manager.readAsync(object : ICallLogListener {
+            override fun onOperationStarted(operation: ICallLogListener.Operation) {
+
+            }
+
+            override fun onOperationEnded(operation: ICallLogListener.Operation) {
+            }
+
+            override fun onOperationProgress(operation: ICallLogListener.Operation, objects: List<CallLogDao>) {
+                logs.addAll(objects)
+            }
+
+            override fun onOperationError(operation: ICallLogListener.Operation, error: String) {
+                asyncError = error
+            }
+        })
+        if(job != null) {
+            job.join()
+        }
+        assertNull(asyncError, asyncError)
+        assertTrue("Got some call logs", logs.size > 0)
     }
 }

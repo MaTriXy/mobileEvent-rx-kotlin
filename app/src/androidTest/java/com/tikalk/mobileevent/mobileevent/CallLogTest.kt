@@ -14,7 +14,6 @@ import org.junit.Rule
 import android.support.test.rule.GrantPermissionRule
 import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
 import kotlinx.coroutines.experimental.runBlocking
-import java.util.concurrent.CountDownLatch
 
 
 /**

@@ -52,8 +52,8 @@ class CallLogManager(val context: Context) {
                                 if (cancelled) break
                                 ret.add(CallLogDao(cursor))
                             }
-                            listener.onOperationProgress(ICallLogListener.Operation.read, ret)
-
+                            listener.onOperationProgress(ICallLogListener.Operation.read, ret.clone() as List<CallLogDao>)
+                            ret.clear()
                         }
                     } else {
                         listener.onOperationError(ICallLogListener.Operation.read, "Cursor could not moveToFirst")

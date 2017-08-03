@@ -55,12 +55,12 @@ class CallLogManager(val context: Context) {
                             listener.onOperationProgress(ICallLogListener.Operation.read, ret.clone() as List<CallLogDao>)
                             ret.clear()
                         }
+                        listener.onOperationEnded(ICallLogListener.Operation.read)
                     } else {
                         listener.onOperationError(ICallLogListener.Operation.read, "Cursor could not moveToFirst")
                     }
                 }
             } finally {
-                listener.onOperationEnded(ICallLogListener.Operation.read)
                 return job
             }
         } else  {

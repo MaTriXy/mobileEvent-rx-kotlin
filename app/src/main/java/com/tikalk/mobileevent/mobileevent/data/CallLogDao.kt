@@ -7,13 +7,13 @@ import android.provider.CallLog
 /**
  * Created by shaulr on 02/08/2017.
  */
-data class CallLogDao( var number: String?,
-                       var date: Long,
-                       var duration: Long,
-                       var type: Int,
-                       var new: Boolean,
-                       var name: String? ) {
-    constructor() : this(null, 0, 0, 0, false, null)
+data class CallLogDao(var number: String? = null,
+                       var date: Long = 0,
+                       var duration: Long = 0,
+                       var type: Int = 0,
+                       var new: Boolean = false,
+                       var name: String? = null) {
+//    constructor() : this(null, 0, 0, 0, false, null)
 
     constructor(cursor : Cursor) : this() {
         number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER))

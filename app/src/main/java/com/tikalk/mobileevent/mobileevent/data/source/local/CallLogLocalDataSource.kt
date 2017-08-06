@@ -14,13 +14,14 @@ import io.reactivex.schedulers.Schedulers
  */
 class CallLogLocalDataSource private constructor(context: Context) : CallLogDataSource {
 
-  var sqlBrite = SqlBrite.Builder().build()
-  var resolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
+  val sqlBrite = SqlBrite.Builder().build()
+  val resolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
 
   @SuppressLint("MissingPermission")
   override fun getCallLog(): Observable<List<CallLogDao>> {
-    val query = resolver.createQuery(CallLog.Calls.CONTENT_URI, null, null, null, null, false)
+    return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, null, null, null, false)
         .mapToList({ c ->
+          val id = c.getInt(c.getColumnIndex(CallLog.Calls._ID))
           val number = c.getString(c.getColumnIndex(CallLog.Calls.NUMBER))
           val date = c.getLong(c.getColumnIndex(CallLog.Calls.DATE))
           val duration = c.getLong(c.getColumnIndex(CallLog.Calls.DURATION))
@@ -28,9 +29,8 @@ class CallLogLocalDataSource private constructor(context: Context) : CallLogData
           val new = (c.getInt(c.getColumnIndex(CallLog.Calls.NEW)) == 1)
           val name = c.getString(c.getColumnIndex(CallLog.Calls.CACHED_NAME))
 
-          CallLogDao(number,date,duration, type, new, name)
+          CallLogDao(id,number,date,duration, type, new, name)
         })
-    return query
   }
 
 

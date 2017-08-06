@@ -27,13 +27,13 @@ class CallLogPresenter(
     disposables.clear()
   }
 
-  fun loadCallLog() {
+  private fun loadCallLog() {
     val disposable = callLogRepositoty.getCallLog()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribeOn(Schedulers.io())
         .subscribe({
           res ->
-          Timber.i(res.toString())
+            callLogView.showCallLogs(res)
         }, {
           err ->
           Timber.e(err)

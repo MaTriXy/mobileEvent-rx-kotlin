@@ -17,7 +17,5 @@ interface CallLogContract {
 
   }
 
-  interface Presenter : BasePresenter {
-
-  }
+  interface Presenter : BasePresenter
 }

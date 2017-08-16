@@ -21,6 +21,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
+    }
 }
 
 
@@ -32,14 +36,18 @@ dependencies {
     implementation "com.android.support:design:$support_version"
     implementation "com.android.support:cardview-v7:$support_version"
     implementation "com.android.support.constraint:constraint-layout:$constraint_layout_version"
+
     //Kotlin
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.17'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    //Rx
-    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid_version"
-    implementation "io.reactivex.rxjava2:rxkotlin:$rxkotlin_version"
-    //sqlbrite2
-    implementation 'com.squareup.sqlbrite2:sqlbrite-kotlin:2.0.0'
+
+    //Rx 2
+    implementation "io.reactivex.rxjava2:rxandroid:$rxandroid2_version"
+    implementation "io.reactivex.rxjava2:rxkotlin:$rxkotlin2_version"
+
+    //Sqlbrite 2
+    implementation "com.squareup.sqlbrite2:sqlbrite-kotlin:$sqlbrite2_version"
+
     implementation "com.jakewharton.timber:timber:$timber_version"
     //Test
     androidTestImplementation("com.android.support.test.espresso:espresso-core:$espresso_version", {

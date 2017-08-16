@@ -30,9 +30,8 @@ class CallLogLocalDataSource private constructor(context: Context) : CallLogData
           val name = c.getString(c.getColumnIndex(CallLog.Calls.CACHED_NAME))
 
           CallLogDao(id,number,date,duration, type, new, name)
-        })
+        }).firstElement().toObservable()
   }
-
 
   companion object {
     private lateinit var INSTANCE: CallLogLocalDataSource

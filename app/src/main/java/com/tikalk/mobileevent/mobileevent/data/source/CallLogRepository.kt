@@ -8,7 +8,6 @@ import io.reactivex.Observable
  * Created by ronelg on 8/6/17.
  */
 class CallLogRepository(val callLogLocalDataSource: CallLogLocalDataSource) : CallLogDataSource {
-
   override fun getCallLog(): Observable<List<CallLogDao>> {
     return callLogLocalDataSource.getCallLog()
   }

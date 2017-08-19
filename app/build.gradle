@@ -49,6 +49,10 @@ dependencies {
     implementation "com.squareup.sqlbrite2:sqlbrite-kotlin:$sqlbrite2_version"
 
     implementation "com.jakewharton.timber:timber:$timber_version"
+
+    //Charts
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.2'
+
     //Test
     androidTestImplementation("com.android.support.test.espresso:espresso-core:$espresso_version", {
         exclude group: 'com.android.support', module: 'support-annotations'

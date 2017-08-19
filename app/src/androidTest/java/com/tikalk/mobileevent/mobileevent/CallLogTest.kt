@@ -38,8 +38,8 @@ class CallLogTest {
     @Test
     fun callLogTest() {
         val logs = ArrayList<CallLogDao>()
-        logs.add(CallLogDao("123123", System.currentTimeMillis(), 1000, CallLog.Calls.OUTGOING_TYPE,true,"Test 1"))
-        logs.add(CallLogDao("456456", System.currentTimeMillis(), 2000, CallLog.Calls.INCOMING_TYPE,true,"Test 2"))
+        logs.add(CallLogDao(1,"123123", System.currentTimeMillis(), 1000, CallLog.Calls.OUTGOING_TYPE,true,"Test 1"))
+        logs.add(CallLogDao(2,"456456", System.currentTimeMillis(), 2000, CallLog.Calls.INCOMING_TYPE,true,"Test 2"))
 
         assertEquals("managed to write two records", manager.write(logs), 2)
         assertTrue("managed to read at least two records", manager.read().size >= 2)

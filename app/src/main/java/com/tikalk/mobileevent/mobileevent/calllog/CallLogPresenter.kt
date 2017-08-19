@@ -11,7 +11,7 @@ import timber.log.Timber
  * Created by ronelg on 8/6/17.
  */
 class CallLogPresenter(
-    val callLogRepositoty: CallLogRepository,
+    val callLogRepository: CallLogRepository,
     val callLogView: CallLogContract.View) : CallLogContract.Presenter {
 
   init {
@@ -31,7 +31,7 @@ class CallLogPresenter(
   }
 
   private fun loadCallLog() {
-    val disposable = callLogRepositoty.getCallLog()
+    val disposable = callLogRepository.getCallLog()
         .observeOn(AndroidSchedulers.mainThread())
         .subscribeOn(Schedulers.io())
         .subscribe({
@@ -44,7 +44,7 @@ class CallLogPresenter(
   }
 
   private fun loadCallLogsWithNamePrefix(prefix: String) {
-    val disposable = callLogRepositoty.getCallLog()
+    val disposable = callLogRepository.getCallLog()
         .flatMapIterable { it }
         .filter { !it.name.isNullOrBlank() && it.name!!.startsWith(prefix, true) }
         .toList()
@@ -60,7 +60,7 @@ class CallLogPresenter(
   }
 
   private fun loadCallLogsWithFilter(filter: Int) {
-    val disposable = callLogRepositoty.getCallLog()
+    val disposable = callLogRepository.getCallLog()
         .flatMapIterable { it }
         .filter { it.type == filter }
         .toList()

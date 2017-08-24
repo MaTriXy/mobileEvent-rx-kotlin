@@ -1,15 +1,21 @@
 package com.tikalk.mobileevent.mobileevent.dashboard
 
+import android.Manifest
 import android.os.Bundle
+import android.provider.CallLog
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
+import android.widget.Toast
+import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tikalk.mobileevent.mobileevent.R
 import com.tikalk.mobileevent.mobileevent.calllog.CallLogFragment
 import com.tikalk.mobileevent.mobileevent.calllog.CallLogPresenter
+import com.tikalk.mobileevent.mobileevent.data.CallLogDao
+import com.tikalk.mobileevent.mobileevent.data.CallLogManager
 import com.tikalk.mobileevent.mobileevent.data.source.CallLogRepository
 import com.tikalk.mobileevent.mobileevent.data.source.local.CallLogLocalDataSource
 import com.tikalk.mobileevent.mobileevent.util.ActivityUtils
@@ -26,8 +32,8 @@ class DashboardActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.callog_activity)
-
-    // Set up the toolbar.
+    requestPermissions()
+     // Set up the toolbar.
     val toolbar = findViewById<Toolbar>(R.id.toolbar)
     setSupportActionBar(toolbar)
     supportActionBar?.let {
@@ -53,7 +59,21 @@ class DashboardActivity : AppCompatActivity() {
         CallLogLocalDataSource.getInstance(applicationContext)),
         dashboardFragment)
   }
-
+  fun requestPermissions() {
+    val rxPermissions = RxPermissions(this) // where this is an Activity instance
+    rxPermissions
+            .request(Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CALL_LOG)
+            .subscribe { granted ->
+              if (granted) { // Always true pre-M
+                Toast.makeText(this, "permissions granted", Toast.LENGTH_LONG).show()
+                val manager = CallLogManager(this)
+                val uri = manager.write(CallLogDao(1,"323232", System.currentTimeMillis(), 1000, CallLog.Calls.INCOMING_TYPE,true,"Test 123"))
+                android.util.Log.d("test", "uri=" + uri.toString())
+              } else {
+                Toast.makeText(this, "permissions denied", Toast.LENGTH_LONG).show()
+              }
+            }
+  }
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     if (item.itemId == android.R.id.home) {
       // Open the navigation drawer when the home icon is selected from the toolbar.

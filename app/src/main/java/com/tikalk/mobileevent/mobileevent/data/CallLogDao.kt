@@ -29,7 +29,7 @@ data class CallLogDao(
 
   fun toContentValues(): ContentValues {
     val values = ContentValues()
-    values.put(CallLog.Calls._ID, id)
+   //values.put(CallLog.Calls._ID, id)
     values.put(CallLog.Calls.NUMBER, number)
     values.put(CallLog.Calls.DATE, date)
     values.put(CallLog.Calls.DURATION, duration)

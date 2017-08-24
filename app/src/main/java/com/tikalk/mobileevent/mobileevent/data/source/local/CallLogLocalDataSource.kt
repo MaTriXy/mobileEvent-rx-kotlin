@@ -20,16 +20,18 @@ class CallLogLocalDataSource private constructor(context: Context) : CallLogData
   @SuppressLint("MissingPermission")
   override fun getCallLog(): Observable<List<CallLogDao>> {
     return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, null, null, null, false)
-        .mapToList({ c ->
-          val id = c.getInt(c.getColumnIndex(CallLog.Calls._ID))
-          val number = c.getString(c.getColumnIndex(CallLog.Calls.NUMBER))
-          val date = c.getLong(c.getColumnIndex(CallLog.Calls.DATE))
-          val duration = c.getLong(c.getColumnIndex(CallLog.Calls.DURATION))
-          val type = c.getInt(c.getColumnIndex(CallLog.Calls.TYPE))
-          val new = (c.getInt(c.getColumnIndex(CallLog.Calls.NEW)) == 1)
-          val name = c.getString(c.getColumnIndex(CallLog.Calls.CACHED_NAME))
+        .mapToList({
+//            c ->
+//          val id = c.getInt(c.getColumnIndex(CallLog.Calls._ID))
+//          val number = c.getString(c.getColumnIndex(CallLog.Calls.NUMBER))
+//          val date = c.getLong(c.getColumnIndex(CallLog.Calls.DATE))
+//          val duration = c.getLong(c.getColumnIndex(CallLog.Calls.DURATION))
+//          val type = c.getInt(c.getColumnIndex(CallLog.Calls.TYPE))
+//          val new = (c.getInt(c.getColumnIndex(CallLog.Calls.NEW)) == 1)
+//          val name = c.getString(c.getColumnIndex(CallLog.Calls.CACHED_NAME))
 
-          CallLogDao(id,number,date,duration, type, new, name)
+//          CallLogDao(id,number,date,duration, type, new, name)
+            c -> CallLogDao(c)
         }).firstElement().toObservable()
   }
 

@@ -14,9 +14,6 @@ import kotlinx.coroutines.experimental.launch
 import java.util.*
 
 
-/**
- * Created by shaulr on 02/08/2017.
- */
 class CallLogManager(val context: Context) {
     private val TAG: String = "CallLogManager"
     private var job: Job? = null

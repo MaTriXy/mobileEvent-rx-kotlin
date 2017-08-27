@@ -1,8 +1,5 @@
 package com.tikalk.mobileevent.mobileevent.data
 
-/**
- * Created by shaulr on 03/08/2017.
- */
 interface ICallLogListener {
     enum class Operation { write, read }
 

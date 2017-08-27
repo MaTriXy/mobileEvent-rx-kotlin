@@ -4,9 +4,6 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.provider.CallLog
 
-/**
- * Created by shaulr on 02/08/2017.
- */
 data class CallLogDao(
         var id: Int = 0,
         var number: String? = null,

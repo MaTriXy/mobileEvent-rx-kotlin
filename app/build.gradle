@@ -53,6 +53,9 @@ dependencies {
     //Charts
     implementation 'com.github.PhilJay:MPAndroidChart:v3.0.2'
 
+    //rxPermissions
+    compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
+
     //Test
     androidTestImplementation("com.android.support.test.espresso:espresso-core:$espresso_version", {
         exclude group: 'com.android.support', module: 'support-annotations'

@@ -9,40 +9,40 @@ import com.tikalk.mobileevent.mobileevent.data.source.CallLogDataSource
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 
-/**
- * Created by ronelg on 8/6/17.
- */
 class CallLogLocalDataSource private constructor(context: Context) : CallLogDataSource {
 
-  val sqlBrite = SqlBrite.Builder().build()
-  val resolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
+    val sqlBrite = SqlBrite.Builder().build()
+    val resolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
 
-  @SuppressLint("MissingPermission")
-  override fun getCallLog(): Observable<List<CallLogDao>> {
-    return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, null, null, null, false)
-        .mapToList({ c ->
-          val id = c.getInt(c.getColumnIndex(CallLog.Calls._ID))
-          val number = c.getString(c.getColumnIndex(CallLog.Calls.NUMBER))
-          val date = c.getLong(c.getColumnIndex(CallLog.Calls.DATE))
-          val duration = c.getLong(c.getColumnIndex(CallLog.Calls.DURATION))
-          val type = c.getInt(c.getColumnIndex(CallLog.Calls.TYPE))
-          val new = (c.getInt(c.getColumnIndex(CallLog.Calls.NEW)) == 1)
-          val name = c.getString(c.getColumnIndex(CallLog.Calls.CACHED_NAME))
+    @SuppressLint("MissingPermission")
+    override fun getCallLog(): Observable<List<CallLogDao>> {
+        return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, null, null, null, false)
+                .mapToList({
+//            c ->
+//          val id = c.getInt(c.getColumnIndex(CallLog.Calls._ID))
+//          val number = c.getString(c.getColumnIndex(CallLog.Calls.NUMBER))
+//          val date = c.getLong(c.getColumnIndex(CallLog.Calls.DATE))
+//          val duration = c.getLong(c.getColumnIndex(CallLog.Calls.DURATION))
+//          val type = c.getInt(c.getColumnIndex(CallLog.Calls.TYPE))
+//          val new = (c.getInt(c.getColumnIndex(CallLog.Calls.NEW)) == 1)
+//          val name = c.getString(c.getColumnIndex(CallLog.Calls.CACHED_NAME))
 
-          CallLogDao(id,number,date,duration, type, new, name)
-        }).firstElement().toObservable()
-  }
-
-  companion object {
-    private lateinit var INSTANCE: CallLogLocalDataSource
-    private var needsNewInstance = true
-
-    @JvmStatic fun getInstance(context: Context): CallLogLocalDataSource {
-      if (needsNewInstance) {
-        INSTANCE = CallLogLocalDataSource(context)
-        needsNewInstance = false
-      }
-      return INSTANCE
+//          CallLogDao(id,number,date,duration, type, new, name)
+                    c ->
+                    CallLogDao(c)
+                }).firstElement().toObservable()
     }
-  }
+
+    companion object {
+        private lateinit var INSTANCE: CallLogLocalDataSource
+        private var needsNewInstance = true
+
+        @JvmStatic fun getInstance(context: Context): CallLogLocalDataSource {
+            if (needsNewInstance) {
+                INSTANCE = CallLogLocalDataSource(context)
+                needsNewInstance = false
+            }
+            return INSTANCE
+        }
+    }
 }

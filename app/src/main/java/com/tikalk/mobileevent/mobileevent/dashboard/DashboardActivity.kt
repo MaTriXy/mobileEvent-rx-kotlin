@@ -8,8 +8,6 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import com.tikalk.mobileevent.mobileevent.R
-import com.tikalk.mobileevent.mobileevent.calllog.CallLogFragment
-import com.tikalk.mobileevent.mobileevent.calllog.CallLogPresenter
 import com.tikalk.mobileevent.mobileevent.data.source.CallLogRepository
 import com.tikalk.mobileevent.mobileevent.data.source.local.CallLogLocalDataSource
 import com.tikalk.mobileevent.mobileevent.util.ActivityUtils

@@ -1,13 +1,9 @@
-package com.ronelg.tmdb
-
-/**
- * Created by ronelg on 8/5/17.
- */
+package com.tikalk.mobileevent.mobileevent
 
 interface BasePresenter {
 
-  fun subscribe()
+    fun subscribe()
 
-  fun unsubscribe()
+    fun unsubscribe()
 
 }

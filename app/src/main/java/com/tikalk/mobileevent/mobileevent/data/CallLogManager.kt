@@ -14,7 +14,6 @@ import kotlinx.coroutines.experimental.launch
 import java.util.*
 
 
-
 /**
  * Created by shaulr on 02/08/2017.
  */
@@ -27,32 +26,32 @@ class CallLogManager(val context: Context) {
     val SELECTION_NUMBER = CallLog.Calls.NUMBER + " = ?"
 
 
-    fun read( selection: String? = null,  selectionArgs: Array<String>? = null) : List<CallLogDao>{
+    fun read(selection: String? = null, selectionArgs: Array<String>? = null): List<CallLogDao> {
         val ret = ArrayList<CallLogDao>()
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
-            if(!cursor.moveToFirst()) {
+            if (!cursor.moveToFirst()) {
                 return ret
             }
-            for(i in 0 .. cursor.count) {
+            for (i in 0..cursor.count) {
                 ret.add(CallLogDao(cursor))
             }
-        } else  {
+        } else {
             Log.e(TAG, "permission READ_CALL_LOG not granted! Skipping query")
         }
 
         return ret
     }
 
-    fun getDateSelectionArgs(startDate: Date, endDate: Date) : Array<String> {
+    fun getDateSelectionArgs(startDate: Date, endDate: Date): Array<String> {
         return arrayOf(startDate.time.toString(), endDate.time.toString())
     }
 
-    fun getNumberSelectionArgs(number : String) : Array<String> {
+    fun getNumberSelectionArgs(number: String): Array<String> {
         return arrayOf(number)
     }
 
-    fun deleteCallLogByNumber(number: String) : Int {
+    fun deleteCallLogByNumber(number: String): Int {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             return context.contentResolver.delete(CallLog.Calls.CONTENT_URI, SELECTION_NUMBER, getNumberSelectionArgs(number))
         } else {
@@ -61,7 +60,7 @@ class CallLogManager(val context: Context) {
         return -1
     }
 
-    fun deleteCallLogByDate(startDate: Date, endDate: Date) : Int {
+    fun deleteCallLogByDate(startDate: Date, endDate: Date): Int {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             return context.contentResolver.delete(CallLog.Calls.CONTENT_URI, SELECTION_DATE, getDateSelectionArgs(startDate, endDate))
         } else {
@@ -70,7 +69,7 @@ class CallLogManager(val context: Context) {
         return -1
     }
 
-    fun readAsync(listener: ICallLogListener,  selection: String? = null,  selectionArgs: Array<String>? = null) : Job? {
+    fun readAsync(listener: ICallLogListener, selection: String? = null, selectionArgs: Array<String>? = null): Job? {
         cancelled = false
         val ret = ArrayList<CallLogDao>()
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
@@ -80,7 +79,7 @@ class CallLogManager(val context: Context) {
                     listener.onOperationStarted(ICallLogListener.Operation.read)
 
                     if (cursor.moveToFirst()) {
-                        for(i in 0 .. cursor.count/10) {
+                        for (i in 0..cursor.count / 10) {
                             for (j in 0..10) {
                                 if (cancelled) break
                                 ret.add(CallLogDao(cursor))
@@ -96,7 +95,7 @@ class CallLogManager(val context: Context) {
             } finally {
                 return job
             }
-        } else  {
+        } else {
             Log.e(TAG, "permission READ_CALL_LOG not granted! Skipping query")
             listener.onOperationError(ICallLogListener.Operation.read, "permission READ_CALL_LOG not granted! Skipping query")
             return null

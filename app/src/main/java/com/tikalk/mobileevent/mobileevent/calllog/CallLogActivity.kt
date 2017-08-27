@@ -1,11 +1,11 @@
 package com.tikalk.mobileevent.mobileevent.calllog
 
 import android.Manifest
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.MenuItem
 import android.widget.Toast
@@ -14,7 +14,6 @@ import com.tikalk.mobileevent.mobileevent.R
 import com.tikalk.mobileevent.mobileevent.data.source.CallLogRepository
 import com.tikalk.mobileevent.mobileevent.data.source.local.CallLogLocalDataSource
 import com.tikalk.mobileevent.mobileevent.util.ActivityUtils
-
 
 
 class CallLogActivity : AppCompatActivity() {
@@ -44,15 +43,15 @@ class CallLogActivity : AppCompatActivity() {
         setupDrawerContent(navigationView)
 
         val callLogFragment = supportFragmentManager.findFragmentById(R.id.contentFrame)
-            as CallLogFragment? ?: CallLogFragment.newInstance().also {
+                as CallLogFragment? ?: CallLogFragment.newInstance().also {
             ActivityUtils.addFragmentToActivity(
-                supportFragmentManager, it, R.id.contentFrame)
+                    supportFragmentManager, it, R.id.contentFrame)
         }
 
         // Create the presenter
         callLogPresenter = CallLogPresenter(CallLogRepository.getInstance(
-            CallLogLocalDataSource.getInstance(applicationContext)),
-            callLogFragment)
+                CallLogLocalDataSource.getInstance(applicationContext)),
+                callLogFragment)
 
     }
 

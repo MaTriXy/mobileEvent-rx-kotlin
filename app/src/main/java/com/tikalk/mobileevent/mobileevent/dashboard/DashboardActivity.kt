@@ -37,13 +37,13 @@ class DashboardActivity : AppCompatActivity() {
                 .request(Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CALL_LOG)
                 .subscribe { granted ->
                     if (granted) { // Always true pre-M
-                        Toast.makeText(this, "permissions granted", Toast.LENGTH_LONG).show()
                         doAfterPermission();
                         val manager = CallLogManager(this)
                         val uri = manager.write(CallLogDao(1, "323232", System.currentTimeMillis(), 1000, CallLog.Calls.INCOMING_TYPE, true, "Test 123"))
                         android.util.Log.d("test", "uri=" + uri.toString())
                     } else {
                         Toast.makeText(this, "permissions denied", Toast.LENGTH_LONG).show()
+                        finish()
                     }
                 }
     }

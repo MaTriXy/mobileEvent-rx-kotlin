@@ -9,6 +9,7 @@ import android.widget.TextView
 import com.tikalk.mobileevent.mobileevent.R
 import com.tikalk.mobileevent.mobileevent.dashboard.data.DashboardItem
 import com.tikalk.mobileevent.mobileevent.dashboard.util.DashboardDiffCallback
+import com.tikalk.mobileevent.mobileevent.util.toCompoundDuration
 
 class DashboardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -43,7 +44,7 @@ class DashboardAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
 
         h.counter.text = model.count.toString()
-        h.duration.text = model.duration.toString()
+        h.duration.text = model.duration.toCompoundDuration()
     }
 
     override fun getItemCount(): Int {

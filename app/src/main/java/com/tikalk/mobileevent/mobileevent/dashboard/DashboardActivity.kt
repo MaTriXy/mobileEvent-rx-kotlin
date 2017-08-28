@@ -1,6 +1,7 @@
 package com.tikalk.mobileevent.mobileevent.dashboard
 
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.provider.CallLog
 import android.support.design.widget.NavigationView
@@ -12,6 +13,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.tikalk.mobileevent.mobileevent.R
+import com.tikalk.mobileevent.mobileevent.calllog.CallLogActivity
 import com.tikalk.mobileevent.mobileevent.data.CallLogDao
 import com.tikalk.mobileevent.mobileevent.data.CallLogManager
 import com.tikalk.mobileevent.mobileevent.data.source.CallLogRepository
@@ -39,7 +41,9 @@ class DashboardActivity : AppCompatActivity() {
                     if (granted) { // Always true pre-M
                         doAfterPermission();
                         val manager = CallLogManager(this)
-                        val uri = manager.write(CallLogDao(1, "323232", System.currentTimeMillis(), 1000, CallLog.Calls.INCOMING_TYPE, true, "Test 123"))
+                        val uri = manager.write(
+                                CallLogDao(1, "323232", System.currentTimeMillis(), 1000,
+                                        CallLog.Calls.INCOMING_TYPE, true, "Test 123"))
                         android.util.Log.d("test", "uri=" + uri.toString())
                     } else {
                         Toast.makeText(this, "permissions denied", Toast.LENGTH_LONG).show()
@@ -87,6 +91,10 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupDrawerContent(navigationView: NavigationView) {
         navigationView.setNavigationItemSelectedListener { menuItem ->
+            if (menuItem.itemId == R.id.callllogs_navigation_menu_item) {
+                val intent = Intent(this@DashboardActivity, CallLogActivity::class.java)
+                startActivity(intent)
+            }
             // Close the navigation drawer when an item is selected.
             menuItem.isChecked = true
             drawerLayout.closeDrawers()

@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Mobile Event</string>
+
+    <string name="dashboard_title">Dashboard</string>
+    <string name="callllogs_title">Call Logs</string>
+
+    <string name="menu_filter">Filter</string>
+    <string name="nav_all">All</string>
+    <string name="nav_incoming">Incoming</string>
+    <string name="nav_outgoing">Outgoing</string>
+    <string name="nav_missed">Missed</string>
 </resources>

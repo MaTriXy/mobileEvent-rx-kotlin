@@ -12,7 +12,13 @@ interface CallLogContract {
 
         fun showCallLogs(calllogs: List<CallLogDao>)
 
+        fun showFilteringPopUpMenu()
     }
 
-    interface Presenter : BasePresenter
+    interface Presenter : BasePresenter {
+
+        fun loadLogs()
+
+        var currentFiltering: CallLogFilterType
+    }
 }

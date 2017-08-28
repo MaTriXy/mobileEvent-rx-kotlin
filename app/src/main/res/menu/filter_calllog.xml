@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_all"
+        android:title="@string/nav_all"
+        android:icon="@drawable/ic_list"/>
+    <item
+        android:id="@+id/nav_incoming"
+        android:title="@string/nav_incoming"
+        android:icon="@drawable/ic_call_received"/>
+    <item
+        android:id="@+id/nav_outgoing"
+        android:title="@string/nav_outgoing"
+        android:icon="@drawable/ic_call_made"/>
+    <item
+        android:id="@+id/nav_missed"
+        android:title="@string/nav_missed"
+        android:icon="@drawable/ic_call_missed"/>
+</menu>

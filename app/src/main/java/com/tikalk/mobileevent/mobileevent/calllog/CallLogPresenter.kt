@@ -11,6 +11,8 @@ class CallLogPresenter(
         val callLogRepository: CallLogRepository,
         val callLogView: CallLogContract.View) : CallLogContract.Presenter {
 
+    override var currentFiltering = CallLogFilterType.ALL
+
     init {
         callLogView.presenter = this
     }
@@ -18,42 +20,30 @@ class CallLogPresenter(
     val disposables: CompositeDisposable = CompositeDisposable()
 
     override fun subscribe() {
-//    loadCallLog()
+        loadLogs()
 //    loadCallLogsWithNamePrefix("m")
-        loadCallLogsWithFilter(CallLog.Calls.INCOMING_TYPE)
     }
 
     override fun unsubscribe() {
         disposables.clear()
     }
 
-    private fun loadCallLog() {
-        val disposable = callLogRepository.getCallLog()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    res ->
-                    callLogView.showCallLogs(res)
-                }, {
-                    err ->
-                    Timber.e(err)
-                })
-
-        disposables.add(disposable)
+    override fun loadLogs() {
+        when (currentFiltering) {
+            CallLogFilterType.ALL -> loadAllCallLog()
+            CallLogFilterType.INCOMING -> loadCallLogsWithFilter(CallLog.Calls.INCOMING_TYPE)
+            CallLogFilterType.OUTGOING -> loadCallLogsWithFilter(CallLog.Calls.OUTGOING_TYPE)
+            CallLogFilterType.MISSED -> loadCallLogsWithFilter(CallLog.Calls.MISSED_TYPE)
+        }
     }
 
-    private fun loadCallLogsWithNamePrefix(prefix: String) {
+    private fun loadAllCallLog() {
         val disposable = callLogRepository.getCallLog()
-                .flatMapIterable { it }
-                .filter { !it.name.isNullOrBlank() && it.name!!.startsWith(prefix, true) }
-                .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe({
-                    res ->
+                .subscribe({ res ->
                     callLogView.showCallLogs(res)
-                }, {
-                    err ->
+                }, { err ->
                     Timber.e(err)
                 })
 
@@ -67,11 +57,25 @@ class CallLogPresenter(
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
-                .subscribe({
-                    res ->
+                .subscribe({ res ->
                     callLogView.showCallLogs(res)
-                }, {
-                    err ->
+                }, { err ->
+                    Timber.e(err)
+                })
+
+        disposables.add(disposable)
+    }
+
+    private fun loadCallLogsWithNamePrefix(prefix: String) {
+        val disposable = callLogRepository.getCallLog()
+                .flatMapIterable { it }
+                .filter { !it.name.isNullOrBlank() && it.name!!.startsWith(prefix, true) }
+                .toList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({ res ->
+                    callLogView.showCallLogs(res)
+                }, { err ->
                     Timber.e(err)
                 })
 

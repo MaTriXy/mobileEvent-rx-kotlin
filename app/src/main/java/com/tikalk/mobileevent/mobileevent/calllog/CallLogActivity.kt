@@ -18,7 +18,6 @@ import com.tikalk.mobileevent.mobileevent.util.ActivityUtils
 
 class CallLogActivity : AppCompatActivity() {
 
-
     private lateinit var drawerLayout: DrawerLayout
 
     private lateinit var callLogPresenter: CallLogPresenter

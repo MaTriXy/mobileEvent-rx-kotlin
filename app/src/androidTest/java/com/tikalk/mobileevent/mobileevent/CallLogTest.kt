@@ -16,10 +16,12 @@ import android.text.TextUtils
 import android.util.Log
 import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
 import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
+import org.reactivestreams.Subscriber
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
@@ -106,7 +108,6 @@ class CallLogTest {
 
     @Test
     fun testRx2() = runBlocking<Unit> {
-
         val source = manager.coroutinesRxQuery(coroutineContext)
         if (source != null) {
             var success = false
@@ -124,5 +125,20 @@ class CallLogTest {
         } else {
             assertTrue("failed to generate RX stream", false)
         }
+    }
+
+    @Test
+    fun testRxSqBrite() {
+        val latch = CountDownLatch(1)
+        var gotList = ArrayList<CallLogDao> ()
+        manager.queryRx().subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    list: List<CallLogDao> ->
+                    gotList.addAll( list)
+                    latch.countDown()
+        })
+        latch.await()
+        assertTrue("got some logs", gotList.size > 0)
     }
 }

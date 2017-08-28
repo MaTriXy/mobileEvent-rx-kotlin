@@ -22,6 +22,6 @@
       app:layout_constraintTop_toTopOf="parent"
       tools:layout_editor_absoluteX="8dp"
       tools:layout_editor_absoluteY="8dp"
-      tools:context=".calllog.CallLogActivity"
+      tools:testContext=".calllog.CallLogActivity"
       tools:listitem="@layout/list_item_calllog"/>
 </android.support.constraint.ConstraintLayout>

@@ -55,6 +55,8 @@ dependencies {
 
     //rxPermissions
     compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.4@aar'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-rx2:0.18'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.18'
 
 
 

@@ -1,19 +1,32 @@
 package com.tikalk.mobileevent.mobileevent.data
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.net.Uri
 import android.provider.CallLog
 import android.support.v4.content.ContextCompat
 import android.util.Log
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.launch
+import com.squareup.sqlbrite2.SqlBrite
+import io.reactivex.Flowable
+
+import kotlinx.coroutines.experimental.*
+import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.experimental.reactive.publish
+
+import kotlinx.coroutines.experimental.rx2.rxFlowable
 import java.util.*
+import kotlin.coroutines.experimental.CoroutineContext
 
 
+/**
+ * Created by shaulr on 02/08/2017.
+ */
 class CallLogManager(val context: Context) {
     private val TAG: String = "CallLogManager"
     private var job: Job? = null
@@ -21,7 +34,8 @@ class CallLogManager(val context: Context) {
 
     val SELECTION_DATE = CallLog.Calls.DATE + " > ? and " + CallLog.Calls.DATE + " < ? "
     val SELECTION_NUMBER = CallLog.Calls.NUMBER + " = ?"
-
+    val sqlBrite = SqlBrite.Builder().build()
+    val resolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
 
     fun read(selection: String? = null, selectionArgs: Array<String>? = null): List<CallLogDao> {
         val ret = ArrayList<CallLogDao>()
@@ -66,6 +80,35 @@ class CallLogManager(val context: Context) {
         return -1
     }
 
+
+    @SuppressLint("MissingPermission")
+    fun queryRx(selection: String? = null, selectionArgs: Array<String>? = null): Observable<List<CallLogDao>> {
+        return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null, false)
+                .mapToList({
+                    c ->
+                    CallLogDao(c)
+                }).firstElement().toObservable()
+    }
+
+    fun coroutinesRxQuery(coroutineContext: CoroutineContext, selection: String? = null, selectionArgs: Array<String>? = null): Flowable<CallLogDao>? {
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
+            val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
+            return coroutinesGenerateFlowable(cursor, coroutineContext)
+        }
+        return null
+    }
+
+    fun coroutinesGenerateFlowable(cursor: Cursor, coroutineContext: CoroutineContext): Flowable<CallLogDao> {
+        return rxFlowable(coroutineContext) {
+            if (cursor.moveToFirst()) {
+                do {
+                    send(CallLogDao(cursor))
+                } while (cursor.moveToNext())
+            }
+        }
+    }
+
+
     fun readAsync(listener: ICallLogListener, selection: String? = null, selectionArgs: Array<String>? = null): Job? {
         cancelled = false
         val ret = ArrayList<CallLogDao>()
@@ -76,14 +119,10 @@ class CallLogManager(val context: Context) {
                     listener.onOperationStarted(ICallLogListener.Operation.read)
 
                     if (cursor.moveToFirst()) {
-                        for (i in 0..cursor.count / 10) {
-                            for (j in 0..10) {
-                                if (cancelled) break
-                                ret.add(CallLogDao(cursor))
-                            }
-                            listener.onOperationProgress(ICallLogListener.Operation.read, ret.clone() as List<CallLogDao>)
+                        do {
+                            listener.onOperationProgress(ICallLogListener.Operation.read, CallLogDao(cursor))
                             ret.clear()
-                        }
+                        } while(cursor.moveToNext())
                         listener.onOperationEnded(ICallLogListener.Operation.read)
                     } else {
                         listener.onOperationError(ICallLogListener.Operation.read, "Cursor could not moveToFirst")
@@ -125,4 +164,5 @@ class CallLogManager(val context: Context) {
         }
         return null
     }
+
 }

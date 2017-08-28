@@ -3,24 +3,37 @@ package com.tikalk.mobileevent.mobileevent
 import android.content.Context
 import android.provider.CallLog
 import android.support.test.InstrumentationRegistry
-import android.support.test.rule.GrantPermissionRule
 import android.support.test.runner.AndroidJUnit4
 import com.tikalk.mobileevent.mobileevent.data.CallLogDao
 import com.tikalk.mobileevent.mobileevent.data.CallLogManager
-import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
-import kotlinx.coroutines.experimental.runBlocking
-import org.junit.Assert.*
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.Assert.*
+import org.junit.Rule
+import android.support.test.rule.GrantPermissionRule
+import android.text.TextUtils
+import android.util.Log
+import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
+import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.runBlocking
+import org.reactivestreams.Subscriber
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 
+/**
+ * Created by shaulr on 02/08/2017.
+ */
 @RunWith(AndroidJUnit4::class)
 class CallLogTest {
+    private val  TAG = "CallLogTest"
 
-    lateinit var context: Context
+    lateinit var testContext: Context
     lateinit var manager: CallLogManager
     val days = 1000 * 60 * 60 * 24
     @Rule @JvmField var permissionRule: GrantPermissionRule? =
@@ -29,8 +42,8 @@ class CallLogTest {
 
     @Before
     fun setup() {
-        context = InstrumentationRegistry.getContext()
-        manager = CallLogManager(context)
+        testContext = InstrumentationRegistry.getContext()
+        manager = CallLogManager(testContext)
     }
 
     @Test
@@ -64,29 +77,68 @@ class CallLogTest {
     }
 
     @Test
-    fun testAsync() = runBlocking<Unit> {
+    fun testAsync() {
+        val latch = CountDownLatch(1)
         var logs = ArrayList<CallLogDao>()
         var asyncError: String? = null
-        var job = manager.readAsync(object : ICallLogListener {
+        manager.readAsync(object : ICallLogListener {
             override fun onOperationStarted(operation: ICallLogListener.Operation) {
 
             }
 
             override fun onOperationEnded(operation: ICallLogListener.Operation) {
+                latch.countDown()
             }
 
-            override fun onOperationProgress(operation: ICallLogListener.Operation, objects: List<CallLogDao>) {
-                logs.addAll(objects)
+            override fun onOperationProgress(operation: ICallLogListener.Operation, log: CallLogDao) {
+                logs.add(log)
             }
 
             override fun onOperationError(operation: ICallLogListener.Operation, error: String) {
                 asyncError = error
+                latch.countDown()
             }
         })
-        if (job != null) {
-            job.join()
-        }
+        latch.await()
+
         assertNull(asyncError, asyncError)
         assertTrue("Got some call logs", logs.size > 0)
+    }
+
+
+    @Test
+    fun testRx2() = runBlocking<Unit> {
+        val source = manager.coroutinesRxQuery(coroutineContext)
+        if (source != null) {
+            var success = false
+            source.observeOn(Schedulers.io(), false, 1) // specify buffer size of 1 item
+                    .doOnComplete {
+                        Log.d(TAG, "rx complete")
+                        success = true
+                    }
+                    .subscribe {
+                        x -> Log.d(TAG, "got " + x.toString())
+                    }
+            delay(2000)
+
+            assertTrue("got published via RX", success)
+        } else {
+            assertTrue("failed to generate RX stream", false)
+        }
+    }
+
+    @Test
+    fun testRxSqBrite() {
+        val latch = CountDownLatch(1)
+        var gotList = ArrayList<CallLogDao> ()
+        manager.queryRx().subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    list: List<CallLogDao> ->
+                    gotList.addAll( list)
+                    latch.countDown()
+        })
+        latch.await()
+        assertTrue("got some logs", gotList.size > 0)
     }
 }

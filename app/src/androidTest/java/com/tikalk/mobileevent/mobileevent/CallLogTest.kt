@@ -75,28 +75,30 @@ class CallLogTest {
     }
 
     @Test
-    fun testAsync() = runBlocking<Unit> {
+    fun testAsync() {
+        val latch = CountDownLatch(1)
         var logs = ArrayList<CallLogDao>()
         var asyncError: String? = null
-        var job = manager.readAsync(object : ICallLogListener {
+        manager.readAsync(object : ICallLogListener {
             override fun onOperationStarted(operation: ICallLogListener.Operation) {
 
             }
 
             override fun onOperationEnded(operation: ICallLogListener.Operation) {
+                latch.countDown()
             }
 
-            override fun onOperationProgress(operation: ICallLogListener.Operation, objects: List<CallLogDao>) {
-                logs.addAll(objects)
+            override fun onOperationProgress(operation: ICallLogListener.Operation, log: CallLogDao) {
+                logs.add(log)
             }
 
             override fun onOperationError(operation: ICallLogListener.Operation, error: String) {
                 asyncError = error
+                latch.countDown()
             }
         })
-        if (job != null) {
-            job.join()
-        }
+        latch.await()
+
         assertNull(asyncError, asyncError)
         assertTrue("Got some call logs", logs.size > 0)
     }

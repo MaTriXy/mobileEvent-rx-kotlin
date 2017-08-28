@@ -119,15 +119,10 @@ class CallLogManager(val context: Context) {
                     listener.onOperationStarted(ICallLogListener.Operation.read)
 
                     if (cursor.moveToFirst()) {
-                        for (i in 0..cursor.count / 10) {
-                            for (j in 0..10) {
-                                if (cancelled) break
-                                ret.add(CallLogDao(cursor))
-                                cursor.moveToNext()
-                            }
-                            listener.onOperationProgress(ICallLogListener.Operation.read, ret.clone() as List<CallLogDao>)
+                        do {
+                            listener.onOperationProgress(ICallLogListener.Operation.read, CallLogDao(cursor))
                             ret.clear()
-                        }
+                        } while(cursor.moveToNext())
                         listener.onOperationEnded(ICallLogListener.Operation.read)
                     } else {
                         listener.onOperationError(ICallLogListener.Operation.read, "Cursor could not moveToFirst")

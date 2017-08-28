@@ -10,93 +10,92 @@ import io.reactivex.rxkotlin.Singles
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
-/**
- * Created by ronelg on 8/17/17.
- */
 class DashboardPresenter(
-    val callLogRepository: CallLogRepository,
-    val dashboardView: DashboardContract.View) : DashboardContract.Presenter {
+        val callLogRepository: CallLogRepository,
+        val dashboardView: DashboardContract.View) : DashboardContract.Presenter {
 
-  init {
-    dashboardView.presenter = this
-  }
+    init {
+        dashboardView.presenter = this
+    }
 
-  val disposables: CompositeDisposable = CompositeDisposable()
+    val disposables: CompositeDisposable = CompositeDisposable()
 
-  override fun subscribe() {
-    loadDashboard()
-  }
+    override fun subscribe() {
+        loadDashboard()
+    }
 
-  override fun unsubscribe() {
-    disposables.clear()
-  }
+    override fun unsubscribe() {
+        disposables.clear()
+    }
 
-  override fun loadDashboard() {
-    val disposable = Singles.zip(
-        loadTotalCalls(),
-        loadIncomingCalls(),
-        loadMissedCalls(),
-        loadOngoingCalls(),
-        { total, incoming, missed, outgoing -> mutableListOf(total, incoming, missed, outgoing) })
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe({
-          res -> dashboardView.showDashboard(res)
-        }, {
-          err-> Timber.e(err)
-        })
+    override fun loadDashboard() {
+        val disposable = Singles.zip(
+                loadTotalCalls(),
+                loadIncomingCalls(),
+                loadMissedCalls(),
+                loadOngoingCalls(),
+                { total, incoming, missed, outgoing -> mutableListOf(total, incoming, missed, outgoing) })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    res ->
+                    dashboardView.showDashboard(res)
+                }, {
+                    err ->
+                    Timber.e(err)
+                })
 
-    disposables.add(disposable)
-  }
+        disposables.add(disposable)
+    }
 
-  private fun loadTotalCalls(): Single<DashboardItem> {
-    return callLogRepository.getCallLog()
-        .flatMapIterable { it }
-        .reduce(DashboardItem()) { acc, cur ->
-          acc.apply {
-            this.duration += cur.duration
-            this.type = DashboardItem.TYPE_TOTAL
-            this.count++
-          }
-        }
-  }
+    private fun loadTotalCalls(): Single<DashboardItem> {
+        return callLogRepository.getCallLog()
+                .flatMapIterable { it }
+                .reduce(DashboardItem()) { acc, cur ->
+                    acc.apply {
+                        this.duration += cur.duration
+                        this.type = DashboardItem.TYPE_TOTAL
+                        this.count++
+                    }
+                }
+    }
 
-  private fun loadIncomingCalls(): Single<DashboardItem> {
-    return callLogRepository.getCallLog()
-        .flatMapIterable { it }
-        .filter { it.type == CallLog.Calls.INCOMING_TYPE }
-        .reduce(DashboardItem()) { acc, cur ->
-          acc.apply {
-            this.duration += cur.duration
-            this.type = DashboardItem.TYPE_INCOMING
-            this.count++
-          }
-        }
-  }
+    private fun loadIncomingCalls(): Single<DashboardItem> {
+        return callLogRepository.getCallLog()
+                .flatMapIterable { it }
+                .filter { it.type == CallLog.Calls.INCOMING_TYPE }
+                .reduce(DashboardItem()) { acc, cur ->
+                    acc.apply {
+                        this.duration += cur.duration
+                        this.type = DashboardItem.TYPE_INCOMING
+                        this.count++
+                    }
+                }
+    }
 
-  private fun loadMissedCalls(): Single<DashboardItem> {
-    return callLogRepository.getCallLog()
-        .flatMapIterable { it }
-        .filter { it.type == CallLog.Calls.MISSED_TYPE }
-        .reduce(DashboardItem()) { acc, cur ->
-          acc.apply {
-            this.duration += cur.duration
-            this.type = DashboardItem.TYPE_MISSED
-            this.count++
-          }
-        }
-  }
+    private fun loadMissedCalls(): Single<DashboardItem> {
+        return callLogRepository.getCallLog()
+                .flatMapIterable { it }
+                .filter { it.type == CallLog.Calls.MISSED_TYPE }
+                .reduce(DashboardItem()) { acc, cur ->
+                    acc.apply {
+                        this.duration += cur.duration
+                        this.type = DashboardItem.TYPE_MISSED
+                        this.count++
+                    }
+                }
+    }
 
-  private fun loadOngoingCalls(): Single<DashboardItem> {
-    return callLogRepository.getCallLog()
-        .flatMapIterable { it }
-        .filter { it.type == CallLog.Calls.OUTGOING_TYPE }
-        .reduce(DashboardItem()) { acc, cur ->
-          acc.apply {
-            this.duration += cur.duration
-            this.type = DashboardItem.TYPE_OUTGOING
-            this.count++
-          }
-        }
-  }
+    private fun loadOngoingCalls(): Single<DashboardItem> {
+        return callLogRepository.getCallLog()
+                .flatMapIterable { it }
+                .filter { it.type == CallLog.Calls.OUTGOING_TYPE }
+                .reduce(DashboardItem()) { acc, cur ->
+                    acc.apply {
+                        this.duration += cur.duration
+                        this.type = DashboardItem.TYPE_OUTGOING
+                        this.count++
+                    }
+                }
+    }
 }

@@ -1,10 +1,7 @@
-package com.ronelg.tmdb
+package com.tikalk.mobileevent.mobileevent
 
-/**
- * Created by ronelg on 8/5/17.
- */
 interface BaseView<T> {
 
-  var presenter: T?
+    var presenter: T?
 
 }

@@ -11,7 +11,7 @@ import com.tikalk.mobileevent.mobileevent.data.CallLogManager
 import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.reactive.awaitFirst
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
@@ -24,7 +24,7 @@ import java.util.concurrent.CountDownLatch
 
 @RunWith(AndroidJUnit4::class)
 class CallLogTest {
-    private val TAG = "CallLogTest"
+    private val  TAG = "CallLogTest"
 
     lateinit var testContext: Context
     lateinit var manager: CallLogManager
@@ -72,7 +72,7 @@ class CallLogTest {
     }
 
     @Test
-    fun testAsync() {
+    fun testAsyncCoroutines() {
         val latch = CountDownLatch(1)
         var logs = ArrayList<CallLogDao>()
         var asyncError: String? = null
@@ -102,20 +102,29 @@ class CallLogTest {
 
 
     @Test
-    fun testRx2() = runBlocking<Unit> {
+    fun testAsyncAnko() = runBlocking{
+        val deferredLogs = manager.readAsyncAnko()
+        assertNotNull("returned null", deferredLogs)
+        val actualLogs = deferredLogs?.await()
+        assertNotNull("got some logs", actualLogs)
+        assertTrue("actually have some logs", actualLogs!!.size > 0)
+    }
+
+
+    @Test
+    fun testRx2Coroutines() = runBlocking {
         val source = manager.coroutinesRxQuery(coroutineContext)
         if (source != null) {
             var success = false
             source.observeOn(Schedulers.io(), false, 1) // specify buffer size of 1 item
                     .doOnComplete {
                         Log.d(TAG, "rx complete")
+                    }
+                    .subscribe {
+                        x -> Log.d(TAG, "got " + x.toString())
                         success = true
                     }
-                    .subscribe { x ->
-                        Log.d(TAG, "got " + x.toString())
-                    }
-            delay(2000)
-
+            source.awaitFirst()
             assertTrue("got published via RX", success)
         } else {
             assertTrue("failed to generate RX stream", false)
@@ -125,13 +134,14 @@ class CallLogTest {
     @Test
     fun testRxSqBrite() {
         val latch = CountDownLatch(1)
-        var gotList = ArrayList<CallLogDao>()
+        var gotList = ArrayList<CallLogDao> ()
         manager.queryRx().subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list: List<CallLogDao> ->
-                    gotList.addAll(list)
+                .subscribe({
+                    list: List<CallLogDao> ->
+                    gotList.addAll( list)
                     latch.countDown()
-                })
+        })
         latch.await()
         assertTrue("got some logs", gotList.size > 0)
     }

@@ -10,14 +10,18 @@ import android.net.Uri
 import android.provider.CallLog
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import com.squareup.sqlbrite2.BriteContentResolver
 import com.squareup.sqlbrite2.SqlBrite
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
+
 import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.rx2.rxFlowable
+import org.jetbrains.anko.coroutines.experimental.bg
 import java.util.*
 import kotlin.coroutines.experimental.CoroutineContext
 
@@ -29,8 +33,8 @@ class CallLogManager(val context: Context) {
 
     val SELECTION_DATE = CallLog.Calls.DATE + " > ? and " + CallLog.Calls.DATE + " < ? "
     val SELECTION_NUMBER = CallLog.Calls.NUMBER + " = ?"
-    val sqlBrite = SqlBrite.Builder().build()
-    val resolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
+    val sqlBrite : SqlBrite = SqlBrite.Builder().build()
+    val resolver : BriteContentResolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
 
     fun read(selection: String? = null, selectionArgs: Array<String>? = null): List<CallLogDao> {
         val ret = ArrayList<CallLogDao>()
@@ -79,7 +83,8 @@ class CallLogManager(val context: Context) {
     @SuppressLint("MissingPermission")
     fun queryRx(selection: String? = null, selectionArgs: Array<String>? = null): Observable<List<CallLogDao>> {
         return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null, false)
-                .mapToList({ c ->
+                .mapToList({
+                    c ->
                     CallLogDao(c)
                 }).firstElement().toObservable()
     }
@@ -105,7 +110,6 @@ class CallLogManager(val context: Context) {
 
     fun readAsync(listener: ICallLogListener, selection: String? = null, selectionArgs: Array<String>? = null): Job? {
         cancelled = false
-        val ret = ArrayList<CallLogDao>()
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
             try {
@@ -115,8 +119,7 @@ class CallLogManager(val context: Context) {
                     if (cursor.moveToFirst()) {
                         do {
                             listener.onOperationProgress(ICallLogListener.Operation.read, CallLogDao(cursor))
-                            ret.clear()
-                        } while (cursor.moveToNext())
+                        } while(cursor.moveToNext())
                         listener.onOperationEnded(ICallLogListener.Operation.read)
                     } else {
                         listener.onOperationError(ICallLogListener.Operation.read, "Cursor could not moveToFirst")
@@ -132,6 +135,26 @@ class CallLogManager(val context: Context) {
         }
     }
 
+    suspend fun readAsyncAnko(selection: String? = null, selectionArgs: Array<String>? = null) : Deferred<List<CallLogDao>>? {
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
+            val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
+            return bg {
+                    queryAllLogs(cursor, selection, selectionArgs)
+                }
+        } else {
+            return null
+        }
+    }
+
+    private fun queryAllLogs(cursor: Cursor, selection: String? = null, selectionArgs: Array<String>? = null) : List<CallLogDao> {
+        val ret = ArrayList<CallLogDao>()
+        if (cursor.moveToFirst()) {
+            do {
+                ret.add(CallLogDao(cursor))
+            } while (cursor.moveToNext())
+        }
+        return ret
+    }
     fun cancelCurrentJob() {
         cancelled = true
         job!!.cancel()

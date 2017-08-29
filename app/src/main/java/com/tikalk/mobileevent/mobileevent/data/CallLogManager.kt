@@ -36,7 +36,7 @@ class CallLogManager(val context: Context) {
     val sqlBrite : SqlBrite = SqlBrite.Builder().build()
     val resolver : BriteContentResolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
 
-    fun read(selection: String? = null, selectionArgs: Array<String>? = null): List<CallLogDao> {
+    fun query(selection: String? = null, selectionArgs: Array<String>? = null): List<CallLogDao> {
         val ret = ArrayList<CallLogDao>()
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
@@ -81,7 +81,7 @@ class CallLogManager(val context: Context) {
 
 
     @SuppressLint("MissingPermission")
-    fun queryRx(selection: String? = null, selectionArgs: Array<String>? = null): Observable<List<CallLogDao>> {
+    fun queryRxSqbrite(selection: String? = null, selectionArgs: Array<String>? = null): Observable<List<CallLogDao>> {
         return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null, false)
                 .mapToList({
                     c ->
@@ -89,7 +89,7 @@ class CallLogManager(val context: Context) {
                 }).firstElement().toObservable()
     }
 
-    fun coroutinesRxQuery(coroutineContext: CoroutineContext, selection: String? = null, selectionArgs: Array<String>? = null): Flowable<CallLogDao>? {
+    fun queryRxCoroutines(coroutineContext: CoroutineContext, selection: String? = null, selectionArgs: Array<String>? = null): Flowable<CallLogDao>? {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
             return coroutinesGenerateFlowable(cursor, coroutineContext)
@@ -97,7 +97,7 @@ class CallLogManager(val context: Context) {
         return null
     }
 
-    fun coroutinesGenerateFlowable(cursor: Cursor, coroutineContext: CoroutineContext): Flowable<CallLogDao> {
+    private fun coroutinesGenerateFlowable(cursor: Cursor, coroutineContext: CoroutineContext): Flowable<CallLogDao> {
         return rxFlowable(coroutineContext) {
             if (cursor.moveToFirst()) {
                 do {
@@ -108,7 +108,7 @@ class CallLogManager(val context: Context) {
     }
 
 
-    fun readAsync(listener: ICallLogListener, selection: String? = null, selectionArgs: Array<String>? = null): Job? {
+    fun queryAsyncCoroutines(listener: ICallLogListener, selection: String? = null, selectionArgs: Array<String>? = null): Job? {
         cancelled = false
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
@@ -135,7 +135,7 @@ class CallLogManager(val context: Context) {
         }
     }
 
-    suspend fun readAsyncAnko(selection: String? = null, selectionArgs: Array<String>? = null) : Deferred<List<CallLogDao>>? {
+    suspend fun queryAsyncAnko(selection: String? = null, selectionArgs: Array<String>? = null) : Deferred<List<CallLogDao>>? {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
             return bg {

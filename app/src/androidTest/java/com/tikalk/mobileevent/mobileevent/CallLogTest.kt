@@ -12,6 +12,7 @@ import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.experimental.reactive.awaitFirst
+import kotlinx.coroutines.experimental.reactive.awaitLast
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
@@ -52,17 +53,17 @@ class CallLogTest {
         assertNotNull("managed to write a record", manager.write(CallLogDao(4, "11111", System.currentTimeMillis(), 1000, CallLog.Calls.INCOMING_TYPE, true, "Test 5")))
         assertNotNull("managed to write a record", manager.write(CallLogDao(5, "123123", System.currentTimeMillis() - days * 10, 1000, CallLog.Calls.OUTGOING_TYPE, true, "Test 4")))
 
-        //test read all with no selection
-        assertTrue("managed to read at least two records", manager.read().size >= 3)
+        //test query all with no selection
+        assertTrue("managed to query at least two records", manager.query().size >= 3)
 
-        //test read with selection
+        //test query with selection
         val fourDaysAgo = Date(System.currentTimeMillis() - 4 * days)
         val sixDaysAgo = Date(System.currentTimeMillis() - 6 * days)
         val dateSelectionArgs = manager.getDateSelectionArgs(sixDaysAgo, fourDaysAgo)
         val numberSelectionArgs = manager.getNumberSelectionArgs("123123")
 
-        assertTrue("managed to read at least one record filtered by date", manager.read(manager.SELECTION_DATE, dateSelectionArgs).size >= 1)
-        assertTrue("managed to read at least one record filtered by number", manager.read(manager.SELECTION_NUMBER, numberSelectionArgs).size >= 1)
+        assertTrue("managed to query at least one record filtered by date", manager.query(manager.SELECTION_DATE, dateSelectionArgs).size >= 1)
+        assertTrue("managed to query at least one record filtered by number", manager.query(manager.SELECTION_NUMBER, numberSelectionArgs).size >= 1)
 
 
         //test delete by selection
@@ -76,7 +77,7 @@ class CallLogTest {
         val latch = CountDownLatch(1)
         var logs = ArrayList<CallLogDao>()
         var asyncError: String? = null
-        manager.readAsync(object : ICallLogListener {
+        manager.queryAsyncCoroutines(object : ICallLogListener {
             override fun onOperationStarted(operation: ICallLogListener.Operation) {
 
             }
@@ -103,7 +104,7 @@ class CallLogTest {
 
     @Test
     fun testAsyncAnko() = runBlocking{
-        val deferredLogs = manager.readAsyncAnko()
+        val deferredLogs = manager.queryAsyncAnko()
         assertNotNull("returned null", deferredLogs)
         val actualLogs = deferredLogs?.await()
         assertNotNull("got some logs", actualLogs)
@@ -113,7 +114,7 @@ class CallLogTest {
 
     @Test
     fun testRx2Coroutines() = runBlocking {
-        val source = manager.coroutinesRxQuery(coroutineContext)
+        val source = manager.queryRxCoroutines(coroutineContext)
         if (source != null) {
             var success = false
             source.observeOn(Schedulers.io(), false, 1) // specify buffer size of 1 item
@@ -124,7 +125,7 @@ class CallLogTest {
                         x -> Log.d(TAG, "got " + x.toString())
                         success = true
                     }
-            source.awaitFirst()
+            source.awaitLast()
             assertTrue("got published via RX", success)
         } else {
             assertTrue("failed to generate RX stream", false)
@@ -135,7 +136,7 @@ class CallLogTest {
     fun testRxSqBrite() {
         val latch = CountDownLatch(1)
         var gotList = ArrayList<CallLogDao> ()
-        manager.queryRx().subscribeOn(Schedulers.newThread())
+        manager.queryRxSqbrite().subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     list: List<CallLogDao> ->

@@ -13,7 +13,8 @@ class CallLogRepository(val callLogLocalDataSource: CallLogLocalDataSource) : Ca
         private lateinit var INSTANCE: CallLogRepository
         private var needsNewInstance = true
 
-        @JvmStatic fun getInstance(callLogLocalDataSource: CallLogLocalDataSource): CallLogRepository {
+        @JvmStatic
+        fun getInstance(callLogLocalDataSource: CallLogLocalDataSource): CallLogRepository {
             if (needsNewInstance) {
                 INSTANCE = CallLogRepository(callLogLocalDataSource)
                 needsNewInstance = false

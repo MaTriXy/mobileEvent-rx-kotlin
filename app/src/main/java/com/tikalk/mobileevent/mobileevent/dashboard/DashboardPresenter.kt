@@ -37,11 +37,9 @@ class DashboardPresenter(
                 { total, incoming, missed, outgoing -> mutableListOf(total, incoming, missed, outgoing) })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    res ->
+                .subscribe({ res ->
                     dashboardView.showDashboard(res)
-                }, {
-                    err ->
+                }, { err ->
                     Timber.e(err)
                 })
 

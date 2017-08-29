@@ -3,40 +3,35 @@ package com.tikalk.mobileevent.mobileevent
 import android.content.Context
 import android.provider.CallLog
 import android.support.test.InstrumentationRegistry
+import android.support.test.rule.GrantPermissionRule
 import android.support.test.runner.AndroidJUnit4
+import android.util.Log
 import com.tikalk.mobileevent.mobileevent.data.CallLogDao
 import com.tikalk.mobileevent.mobileevent.data.CallLogManager
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.Assert.*
-import org.junit.Rule
-import android.support.test.rule.GrantPermissionRule
-import android.text.TextUtils
-import android.util.Log
 import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
-import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.runBlocking
-import org.reactivestreams.Subscriber
+import org.junit.Assert.*
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
 
-/**
- * Created by shaulr on 02/08/2017.
- */
 @RunWith(AndroidJUnit4::class)
 class CallLogTest {
-    private val  TAG = "CallLogTest"
+    private val TAG = "CallLogTest"
 
     lateinit var testContext: Context
     lateinit var manager: CallLogManager
     val days = 1000 * 60 * 60 * 24
-    @Rule @JvmField var permissionRule: GrantPermissionRule? =
+    @Rule
+    @JvmField
+    var permissionRule: GrantPermissionRule? =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_CALL_LOG,
                     android.Manifest.permission.READ_CALL_LOG)
 
@@ -116,8 +111,8 @@ class CallLogTest {
                         Log.d(TAG, "rx complete")
                         success = true
                     }
-                    .subscribe {
-                        x -> Log.d(TAG, "got " + x.toString())
+                    .subscribe { x ->
+                        Log.d(TAG, "got " + x.toString())
                     }
             delay(2000)
 
@@ -130,14 +125,13 @@ class CallLogTest {
     @Test
     fun testRxSqBrite() {
         val latch = CountDownLatch(1)
-        var gotList = ArrayList<CallLogDao> ()
+        var gotList = ArrayList<CallLogDao>()
         manager.queryRx().subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    list: List<CallLogDao> ->
-                    gotList.addAll( list)
+                .subscribe({ list: List<CallLogDao> ->
+                    gotList.addAll(list)
                     latch.countDown()
-        })
+                })
         latch.await()
         assertTrue("got some logs", gotList.size > 0)
     }

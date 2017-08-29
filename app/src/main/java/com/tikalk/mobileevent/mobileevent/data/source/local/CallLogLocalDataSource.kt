@@ -26,7 +26,8 @@ class CallLogLocalDataSource private constructor(context: Context) : CallLogData
         private lateinit var INSTANCE: CallLogLocalDataSource
         private var needsNewInstance = true
 
-        @JvmStatic fun getInstance(context: Context): CallLogLocalDataSource {
+        @JvmStatic
+        fun getInstance(context: Context): CallLogLocalDataSource {
             if (needsNewInstance) {
                 INSTANCE = CallLogLocalDataSource(context)
                 needsNewInstance = false

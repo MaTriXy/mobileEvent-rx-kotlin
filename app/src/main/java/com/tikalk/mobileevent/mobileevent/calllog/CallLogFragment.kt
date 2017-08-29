@@ -17,7 +17,7 @@ class CallLogFragment : Fragment(), CallLogContract.View {
     lateinit var adapter: CallLogsAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View? {
 
         val root = inflater.inflate(R.layout.calllog_fragment, container, false)
 

@@ -12,21 +12,16 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import com.squareup.sqlbrite2.SqlBrite
 import io.reactivex.Flowable
-
-import kotlinx.coroutines.experimental.*
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.experimental.reactive.publish
-
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.rx2.rxFlowable
 import java.util.*
 import kotlin.coroutines.experimental.CoroutineContext
 
 
-/**
- * Created by shaulr on 02/08/2017.
- */
 class CallLogManager(val context: Context) {
     private val TAG: String = "CallLogManager"
     private var job: Job? = null
@@ -84,8 +79,7 @@ class CallLogManager(val context: Context) {
     @SuppressLint("MissingPermission")
     fun queryRx(selection: String? = null, selectionArgs: Array<String>? = null): Observable<List<CallLogDao>> {
         return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null, false)
-                .mapToList({
-                    c ->
+                .mapToList({ c ->
                     CallLogDao(c)
                 }).firstElement().toObservable()
     }
@@ -122,7 +116,7 @@ class CallLogManager(val context: Context) {
                         do {
                             listener.onOperationProgress(ICallLogListener.Operation.read, CallLogDao(cursor))
                             ret.clear()
-                        } while(cursor.moveToNext())
+                        } while (cursor.moveToNext())
                         listener.onOperationEnded(ICallLogListener.Operation.read)
                     } else {
                         listener.onOperationError(ICallLogListener.Operation.read, "Cursor could not moveToFirst")

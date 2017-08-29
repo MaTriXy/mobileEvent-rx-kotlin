@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  <item
-      android:icon="@drawable/ic_dashboard"
-      android:id="@+id/dashboard_navigation_menu_item"
-      android:title="@string/dashboard_title"/>
-  <item
-      android:icon="@drawable/ic_list"
-      android:id="@+id/callllogs_navigation_menu_item"
-      android:title="@string/callllogs_title"/>
+    <item
+        android:id="@+id/dashboard_navigation_menu_item"
+        android:icon="@drawable/ic_dashboard"
+        android:title="@string/dashboard_title" />
+    <item
+        android:id="@+id/callllogs_navigation_menu_item"
+        android:icon="@drawable/ic_list"
+        android:title="@string/callllogs_title" />
 </menu>

@@ -36,6 +36,9 @@ class CallLogManager(val context: Context) {
     val sqlBrite : SqlBrite = SqlBrite.Builder().build()
     val resolver : BriteContentResolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
 
+    fun getDateSelectionArgs(startDate: Date, endDate: Date) = arrayOf(startDate.time.toString(), endDate.time.toString())
+    fun getNumberSelectionArgs(number: String) = arrayOf(number)
+
     fun query(selection: String? = null, selectionArgs: Array<String>? = null): List<CallLogDao> {
         val ret = ArrayList<CallLogDao>()
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
@@ -53,33 +56,6 @@ class CallLogManager(val context: Context) {
         return ret
     }
 
-    fun getDateSelectionArgs(startDate: Date, endDate: Date): Array<String> {
-        return arrayOf(startDate.time.toString(), endDate.time.toString())
-    }
-
-    fun getNumberSelectionArgs(number: String): Array<String> {
-        return arrayOf(number)
-    }
-
-    fun deleteCallLogByNumber(number: String): Int {
-        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
-            return context.contentResolver.delete(CallLog.Calls.CONTENT_URI, SELECTION_NUMBER, getNumberSelectionArgs(number))
-        } else {
-            Log.e(TAG, "permission WRITE_CALL_LOG not granted! Skipping delete")
-        }
-        return -1
-    }
-
-    fun deleteCallLogByDate(startDate: Date, endDate: Date): Int {
-        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
-            return context.contentResolver.delete(CallLog.Calls.CONTENT_URI, SELECTION_DATE, getDateSelectionArgs(startDate, endDate))
-        } else {
-            Log.e(TAG, "permission WRITE_CALL_LOG not granted! Skipping delete")
-        }
-        return -1
-    }
-
-
     @SuppressLint("MissingPermission")
     fun queryRxSqbrite(selection: String? = null, selectionArgs: Array<String>? = null): Observable<List<CallLogDao>> {
         return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null, false)
@@ -88,25 +64,17 @@ class CallLogManager(val context: Context) {
                     CallLogDao(c)
                 }).firstElement().toObservable()
     }
-
-    fun queryRxCoroutines(coroutineContext: CoroutineContext, selection: String? = null, selectionArgs: Array<String>? = null): Flowable<CallLogDao>? {
+    
+    suspend fun queryAsyncAnko(selection: String? = null, selectionArgs: Array<String>? = null) : Deferred<List<CallLogDao>>? {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
-            return coroutinesGenerateFlowable(cursor, coroutineContext)
-        }
-        return null
-    }
-
-    private fun coroutinesGenerateFlowable(cursor: Cursor, coroutineContext: CoroutineContext): Flowable<CallLogDao> {
-        return rxFlowable(coroutineContext) {
-            if (cursor.moveToFirst()) {
-                do {
-                    send(CallLogDao(cursor))
-                } while (cursor.moveToNext())
+            return bg {
+                queryAllLogs(cursor, selection, selectionArgs)
             }
+        } else {
+            return null
         }
     }
-
 
     fun queryAsyncCoroutines(listener: ICallLogListener, selection: String? = null, selectionArgs: Array<String>? = null): Job? {
         cancelled = false
@@ -135,16 +103,28 @@ class CallLogManager(val context: Context) {
         }
     }
 
-    suspend fun queryAsyncAnko(selection: String? = null, selectionArgs: Array<String>? = null) : Deferred<List<CallLogDao>>? {
+    fun queryRxCoroutines(coroutineContext: CoroutineContext, selection: String? = null, selectionArgs: Array<String>? = null): Flowable<CallLogDao>? {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
-            return bg {
-                    queryAllLogs(cursor, selection, selectionArgs)
-                }
-        } else {
-            return null
+            return coroutinesGenerateFlowable(cursor, coroutineContext)
+        }
+        return null
+    }
+
+    private fun coroutinesGenerateFlowable(cursor: Cursor, coroutineContext: CoroutineContext): Flowable<CallLogDao> {
+        return rxFlowable(coroutineContext) {
+            if (cursor.moveToFirst()) {
+                do {
+                    send(CallLogDao(cursor))
+                } while (cursor.moveToNext())
+            }
         }
     }
+
+
+
+
+
 
     private fun queryAllLogs(cursor: Cursor, selection: String? = null, selectionArgs: Array<String>? = null) : List<CallLogDao> {
         val ret = ArrayList<CallLogDao>()
@@ -155,6 +135,28 @@ class CallLogManager(val context: Context) {
         }
         return ret
     }
+
+
+    fun deleteCallLogByNumber(number: String): Int {
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
+            return context.contentResolver.delete(CallLog.Calls.CONTENT_URI, SELECTION_NUMBER, getNumberSelectionArgs(number))
+        } else {
+            Log.e(TAG, "permission WRITE_CALL_LOG not granted! Skipping delete")
+        }
+        return -1
+    }
+
+    fun deleteCallLogByDate(startDate: Date, endDate: Date): Int {
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
+            return context.contentResolver.delete(CallLog.Calls.CONTENT_URI, SELECTION_DATE, getDateSelectionArgs(startDate, endDate))
+        } else {
+            Log.e(TAG, "permission WRITE_CALL_LOG not granted! Skipping delete")
+        }
+        return -1
+    }
+
+
+
     fun cancelCurrentJob() {
         cancelled = true
         job!!.cancel()

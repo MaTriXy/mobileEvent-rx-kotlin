@@ -49,10 +49,9 @@ class DashboardPresenter(
     private fun loadTotalCalls(): Single<DashboardItem> {
         return callLogRepository.getCallLog()
                 .flatMapIterable { it }
-                .reduce(DashboardItem()) { acc, cur ->
+                .reduce(DashboardItem().apply { this.type = DashboardItem.TYPE_TOTAL }) { acc, cur ->
                     acc.apply {
                         this.duration += cur.duration
-                        this.type = DashboardItem.TYPE_TOTAL
                         this.count++
                     }
                 }
@@ -62,10 +61,9 @@ class DashboardPresenter(
         return callLogRepository.getCallLog()
                 .flatMapIterable { it }
                 .filter { it.type == CallLog.Calls.INCOMING_TYPE }
-                .reduce(DashboardItem()) { acc, cur ->
+                .reduce(DashboardItem().apply { this.type = DashboardItem.TYPE_INCOMING }) { acc, cur ->
                     acc.apply {
                         this.duration += cur.duration
-                        this.type = DashboardItem.TYPE_INCOMING
                         this.count++
                     }
                 }
@@ -75,10 +73,9 @@ class DashboardPresenter(
         return callLogRepository.getCallLog()
                 .flatMapIterable { it }
                 .filter { it.type == CallLog.Calls.MISSED_TYPE }
-                .reduce(DashboardItem()) { acc, cur ->
+                .reduce(DashboardItem().apply {this.type = DashboardItem.TYPE_MISSED }) { acc, cur ->
                     acc.apply {
                         this.duration += cur.duration
-                        this.type = DashboardItem.TYPE_MISSED
                         this.count++
                     }
                 }
@@ -88,10 +85,9 @@ class DashboardPresenter(
         return callLogRepository.getCallLog()
                 .flatMapIterable { it }
                 .filter { it.type == CallLog.Calls.OUTGOING_TYPE }
-                .reduce(DashboardItem()) { acc, cur ->
+                .reduce(DashboardItem().apply { this.type  = DashboardItem.TYPE_OUTGOING }) { acc, cur ->
                     acc.apply {
                         this.duration += cur.duration
-                        this.type = DashboardItem.TYPE_OUTGOING
                         this.count++
                     }
                 }

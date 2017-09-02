@@ -21,7 +21,6 @@ class CallLogPresenter(
 
     override fun subscribe() {
         loadLogs()
-//    loadCallLogsWithNamePrefix("m")
     }
 
     override fun unsubscribe() {
@@ -66,7 +65,7 @@ class CallLogPresenter(
         disposables.add(disposable)
     }
 
-    private fun loadCallLogsWithNamePrefix(prefix: String) {
+    override fun loadCallLogsWithNamePrefix(prefix: String) {
         val disposable = callLogRepository.getCallLog()
                 .flatMapIterable { it }
                 .filter { !it.name.isNullOrBlank() && it.name!!.startsWith(prefix, true) }

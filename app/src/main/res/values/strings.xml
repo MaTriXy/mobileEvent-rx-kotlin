@@ -5,6 +5,7 @@
     <string name="callllogs_title">Call Logs</string>
 
     <string name="menu_filter">Filter</string>
+    <string name="menu_search">Search</string>
     <string name="nav_all">All</string>
     <string name="nav_incoming">Incoming</string>
     <string name="nav_outgoing">Outgoing</string>

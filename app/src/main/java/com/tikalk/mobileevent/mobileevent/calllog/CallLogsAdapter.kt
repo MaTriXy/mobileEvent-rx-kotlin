@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.tikalk.mobileevent.mobileevent.R
 import com.tikalk.mobileevent.mobileevent.calllog.util.CallLogDiffCallback
@@ -42,6 +43,8 @@ class CallLogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         h.phone.text = formatNumber(model.number)
         h.type.text = formatType(model.type)
         h.date.text = formatDate(model.date)
+
+        h.icon.setImageResource(getIconResId(model.type))
     }
 
     override fun getItemCount(): Int {
@@ -53,12 +56,14 @@ class CallLogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val phone: TextView
         val type: TextView
         val date: TextView
+        val icon: ImageView
 
         init {
             name = itemView.findViewById<TextView>(R.id.card_name)
             phone = itemView.findViewById<TextView>(R.id.card_number)
             type = itemView.findViewById<TextView>(R.id.card_type)
             date = itemView.findViewById<TextView>(R.id.card_date)
+            icon = itemView.findViewById<ImageView>(R.id.card_icon)
         }
     }
 
@@ -89,6 +94,15 @@ class CallLogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
 
             return typeString
+        }
+
+        fun getIconResId(type: Int): Int {
+            when (type) {
+                CallLog.Calls.INCOMING_TYPE -> return R.drawable.ic_call_received
+                CallLog.Calls.OUTGOING_TYPE -> return R.drawable.ic_call_made
+                CallLog.Calls.MISSED_TYPE -> return R.drawable.ic_call_missed
+                else -> return 0
+            }
         }
     }
 }

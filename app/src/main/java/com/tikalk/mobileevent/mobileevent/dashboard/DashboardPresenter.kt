@@ -11,14 +11,14 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 class DashboardPresenter(
-        val callLogRepository: CallLogRepository,
-        val dashboardView: DashboardContract.View) : DashboardContract.Presenter {
+        private val callLogRepository: CallLogRepository,
+        private val dashboardView: DashboardContract.View) : DashboardContract.Presenter {
 
     init {
         dashboardView.presenter = this
     }
 
-    val disposables: CompositeDisposable = CompositeDisposable()
+    private val disposables: CompositeDisposable = CompositeDisposable()
 
     override fun subscribe() {
         loadDashboard()
@@ -73,7 +73,7 @@ class DashboardPresenter(
         return callLogRepository.getCallLog()
                 .flatMapIterable { it }
                 .filter { it.type == CallLog.Calls.MISSED_TYPE }
-                .reduce(DashboardItem().apply {this.type = DashboardItem.TYPE_MISSED }) { acc, cur ->
+                .reduce(DashboardItem().apply { this.type = DashboardItem.TYPE_MISSED }) { acc, cur ->
                     acc.apply {
                         this.duration += cur.duration
                         this.count++
@@ -85,7 +85,7 @@ class DashboardPresenter(
         return callLogRepository.getCallLog()
                 .flatMapIterable { it }
                 .filter { it.type == CallLog.Calls.OUTGOING_TYPE }
-                .reduce(DashboardItem().apply { this.type  = DashboardItem.TYPE_OUTGOING }) { acc, cur ->
+                .reduce(DashboardItem().apply { this.type = DashboardItem.TYPE_OUTGOING }) { acc, cur ->
                     acc.apply {
                         this.duration += cur.duration
                         this.count++

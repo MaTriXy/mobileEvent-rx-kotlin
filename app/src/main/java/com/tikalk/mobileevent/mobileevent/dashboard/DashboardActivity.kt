@@ -28,7 +28,7 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.callog_activity)
+        setContentView(R.layout.dashboard_activity)
         requestPermissions()
 
     }
@@ -39,7 +39,7 @@ class DashboardActivity : AppCompatActivity() {
                 .request(Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CALL_LOG)
                 .subscribe { granted ->
                     if (granted) { // Always true pre-M
-                        doAfterPermission();
+                        doAfterPermissionsGranted()
                         val manager = CallLogManager(this)
                         val uri = manager.write(
                                 CallLogDao(1, "323232", System.currentTimeMillis(), 1000,
@@ -52,7 +52,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
     }
 
-    private fun doAfterPermission() {
+    private fun doAfterPermissionsGranted() {
         // Set up the toolbar.
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)

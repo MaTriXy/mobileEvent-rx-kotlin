@@ -51,12 +51,12 @@ class CallLogFragment : Fragment(), CallLogContract.View {
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater) {
         inflater.inflate(R.menu.calllogs_fragment_menu, menu)
 
-        val disposable =  RxSearchView.queryTextChangeEvents(
+        val disposable = RxSearchView.queryTextChangeEvents(
                 menu?.findItem(R.id.menu_search)?.actionView as SearchView)
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    res -> presenter?.loadCallLogsWithNamePrefix(res.queryText().toString())
+                .subscribe({ res ->
+                    presenter?.loadCallLogsWithNamePrefix(res.queryText().toString())
                 })
         disposables.add(disposable)
     }

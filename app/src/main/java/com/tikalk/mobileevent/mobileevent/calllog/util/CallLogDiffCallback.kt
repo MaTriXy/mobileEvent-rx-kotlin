@@ -3,9 +3,6 @@ package com.tikalk.mobileevent.mobileevent.calllog.util
 import android.support.v7.util.DiffUtil
 import com.tikalk.mobileevent.mobileevent.data.CallLogDao
 
-/**
- *
- */
 class CallLogDiffCallback(
         val oldList: List<CallLogDao>,
         val newList: List<CallLogDao>) : DiffUtil.Callback() {

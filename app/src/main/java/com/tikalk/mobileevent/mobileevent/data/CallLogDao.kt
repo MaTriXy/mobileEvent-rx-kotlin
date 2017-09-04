@@ -12,7 +12,6 @@ data class CallLogDao(
         var type: Int = 0,
         var new: Boolean = false,
         var name: String? = null) {
-//    constructor() : this(null, 0, 0, 0, false, null)
 
     constructor(cursor: Cursor) : this() {
         id = cursor.getInt(cursor.getColumnIndex(CallLog.Calls._ID))
@@ -26,7 +25,6 @@ data class CallLogDao(
 
     fun toContentValues(): ContentValues {
         val values = ContentValues()
-        //values.put(CallLog.Calls._ID, id)
         values.put(CallLog.Calls.NUMBER, number)
         values.put(CallLog.Calls.DATE, date)
         values.put(CallLog.Calls.DURATION, duration)

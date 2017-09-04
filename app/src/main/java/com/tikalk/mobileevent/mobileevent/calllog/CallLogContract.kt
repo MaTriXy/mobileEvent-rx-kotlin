@@ -19,7 +19,7 @@ interface CallLogContract {
 
         fun loadLogs()
 
-        fun loadCallLogsWithNamePrefix(prefix: String)
+        fun loadCallLogsWitPhonePrefix(prefix: String)
 
         var currentFiltering: CallLogFilterType
     }

@@ -155,6 +155,14 @@ class CallLogManager(val context: Context) {
         return -1
     }
 
+    fun deleteAllCallLog(): Int {
+        if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
+            return context.contentResolver.delete(CallLog.Calls.CONTENT_URI,null,null)
+        } else {
+            Log.e(TAG, "permission WRITE_CALL_LOG not granted! Skipping delete")
+        }
+        return -1
+    }
 
 
     fun cancelCurrentJob() {

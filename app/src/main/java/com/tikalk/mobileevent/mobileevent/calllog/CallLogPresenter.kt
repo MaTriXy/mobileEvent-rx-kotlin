@@ -65,10 +65,10 @@ class CallLogPresenter(
         disposables.add(disposable)
     }
 
-    override fun loadCallLogsWithNamePrefix(prefix: String) {
+    override fun loadCallLogsWitPhonePrefix(prefix: String) {
         val disposable = callLogRepository.getCallLog()
                 .flatMapIterable { it }
-                .filter { !it.name.isNullOrBlank() && it.name!!.startsWith(prefix, true) }
+                .filter { !it.number.isNullOrBlank() && it.number!!.startsWith(prefix, true) }
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())

@@ -53,10 +53,15 @@ class CallLogFragment : Fragment(), CallLogContract.View {
 
         val disposable =  RxSearchView.queryTextChangeEvents(
                 menu?.findItem(R.id.menu_search)?.actionView as SearchView)
+                .skip(1)
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    res -> presenter?.loadCallLogsWithNamePrefix(res.queryText().toString())
+                    res -> if (res.queryText().isEmpty()) {
+                        presenter?.loadLogs()
+                    } else {
+                        presenter?.loadCallLogsWitPhonePrefix(res.queryText().toString())
+                    }
                 })
         disposables.add(disposable)
     }

@@ -8,4 +8,9 @@
         android:id="@+id/callllogs_navigation_menu_item"
         android:icon="@drawable/ic_list"
         android:title="@string/callllogs_title" />
+
+    <item
+        android:id="@+id/bootsrap_navigation_menu_item"
+        android:icon="@drawable/ic_unarchive"
+        android:title="@string/bootsrap_title" />
 </menu>

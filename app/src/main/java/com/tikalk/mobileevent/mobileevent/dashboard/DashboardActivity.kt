@@ -26,7 +26,7 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.callog_activity)
+        setContentView(R.layout.dashboard_activity)
         requestPermissions()
 
     }
@@ -37,7 +37,7 @@ class DashboardActivity : AppCompatActivity() {
                 .request(Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CALL_LOG)
                 .subscribe { granted ->
                     if (granted) { // Always true pre-M
-                        doAfterPermission()
+                        doAfterPermissionsGranted()
                     } else {
                         Toast.makeText(this, "permissions denied", Toast.LENGTH_LONG).show()
                         finish()
@@ -45,7 +45,7 @@ class DashboardActivity : AppCompatActivity() {
                 }
     }
 
-    private fun doAfterPermission() {
+    private fun doAfterPermissionsGranted() {
         // Set up the toolbar.
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)

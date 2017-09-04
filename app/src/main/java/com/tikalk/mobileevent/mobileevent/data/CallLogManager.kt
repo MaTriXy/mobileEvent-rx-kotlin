@@ -33,8 +33,8 @@ class CallLogManager(val context: Context) {
 
     val SELECTION_DATE = CallLog.Calls.DATE + " > ? and " + CallLog.Calls.DATE + " < ? "
     val SELECTION_NUMBER = CallLog.Calls.NUMBER + " = ?"
-    val sqlBrite : SqlBrite = SqlBrite.Builder().build()
-    val resolver : BriteContentResolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
+    val sqlBrite: SqlBrite = SqlBrite.Builder().build()
+    val resolver: BriteContentResolver = sqlBrite.wrapContentProvider(context.contentResolver, Schedulers.io())
 
     fun getDateSelectionArgs(startDate: Date, endDate: Date) = arrayOf(startDate.time.toString(), endDate.time.toString())
     fun getNumberSelectionArgs(number: String) = arrayOf(number)
@@ -49,6 +49,7 @@ class CallLogManager(val context: Context) {
             for (i in 0..cursor.count) {
                 ret.add(CallLogDao(cursor))
             }
+            cursor?.close()
         } else {
             Log.e(TAG, "permission READ_CALL_LOG not granted! Skipping query")
         }
@@ -59,13 +60,12 @@ class CallLogManager(val context: Context) {
     @SuppressLint("MissingPermission")
     fun queryRxSqbrite(selection: String? = null, selectionArgs: Array<String>? = null): Observable<List<CallLogDao>> {
         return resolver.createQuery(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null, false)
-                .mapToList({
-                    c ->
+                .mapToList({ c ->
                     CallLogDao(c)
                 }).firstElement().toObservable()
     }
-    
-    suspend fun queryAsyncAnko(selection: String? = null, selectionArgs: Array<String>? = null) : Deferred<List<CallLogDao>>? {
+
+    suspend fun queryAsyncAnko(selection: String? = null, selectionArgs: Array<String>? = null): Deferred<List<CallLogDao>>? {
         if (PackageManager.PERMISSION_GRANTED == ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG)) {
             val cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI, null, selection, selectionArgs, null)
             return bg {
@@ -87,8 +87,9 @@ class CallLogManager(val context: Context) {
                     if (cursor.moveToFirst()) {
                         do {
                             listener.onOperationProgress(ICallLogListener.Operation.read, CallLogDao(cursor))
-                        } while(cursor.moveToNext())
+                        } while (cursor.moveToNext())
                         listener.onOperationEnded(ICallLogListener.Operation.read)
+                        cursor?.close()
                     } else {
                         listener.onOperationError(ICallLogListener.Operation.read, "Cursor could not moveToFirst")
                     }
@@ -122,11 +123,7 @@ class CallLogManager(val context: Context) {
     }
 
 
-
-
-
-
-    private fun queryAllLogs(cursor: Cursor, selection: String? = null, selectionArgs: Array<String>? = null) : List<CallLogDao> {
+    private fun queryAllLogs(cursor: Cursor, selection: String? = null, selectionArgs: Array<String>? = null): List<CallLogDao> {
         val ret = ArrayList<CallLogDao>()
         if (cursor.moveToFirst()) {
             do {
@@ -163,7 +160,6 @@ class CallLogManager(val context: Context) {
         }
         return -1
     }
-
 
     fun cancelCurrentJob() {
         cancelled = true

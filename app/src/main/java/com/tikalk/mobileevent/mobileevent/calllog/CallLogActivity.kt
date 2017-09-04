@@ -27,6 +27,25 @@ class CallLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.callog_activity)
         requestPermissions()
+
+    }
+
+
+    fun requestPermissions() {
+        val rxPermissions = RxPermissions(this) // where this is an Activity instance
+        rxPermissions
+                .request(Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CALL_LOG)
+                .subscribe { granted ->
+                    if (granted) { // Always true pre-M
+                        //Add stuff needed to be done after permissions are granted
+                        doAfterPermissionsGranted()
+                    } else {
+                        Toast.makeText(this, "permissions denied", Toast.LENGTH_LONG).show()
+                    }
+                }
+    }
+
+    private fun doAfterPermissionsGranted() {
         // Set up the toolbar.
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -52,20 +71,6 @@ class CallLogActivity : AppCompatActivity() {
         callLogPresenter = CallLogPresenter(CallLogRepository.getInstance(
                 CallLogLocalDataSource.getInstance(applicationContext)),
                 callLogFragment)
-
-    }
-
-    fun requestPermissions() {
-        val rxPermissions = RxPermissions(this) // where this is an Activity instance
-        rxPermissions
-                .request(Manifest.permission.WRITE_CALL_LOG, Manifest.permission.READ_CALL_LOG)
-                .subscribe { granted ->
-                    if (granted) { // Always true pre-M
-                        Toast.makeText(this, "permissions granted", Toast.LENGTH_LONG).show()
-                    } else {
-                        Toast.makeText(this, "permissions denied", Toast.LENGTH_LONG).show()
-                    }
-                }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

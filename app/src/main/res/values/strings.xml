@@ -11,4 +11,10 @@
     <string name="nav_incoming">Incoming</string>
     <string name="nav_outgoing">Outgoing</string>
     <string name="nav_missed">Missed</string>
+
+    <string name="total_calls_lbl">Total Calls</string>
+    <string name="incoming_calls_lbl">Incoming Calls</string>
+    <string name="outgoing_calls_lbl">Outgoing Calls</string>
+    <string name="missed_calls_lbl">Missed Calls</string>
+
 </resources>

@@ -11,7 +11,6 @@ import com.tikalk.mobileevent.mobileevent.data.CallLogManager
 import com.tikalk.mobileevent.mobileevent.data.ICallLogListener
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.experimental.reactive.awaitFirst
 import kotlinx.coroutines.experimental.reactive.awaitLast
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.*
@@ -25,7 +24,7 @@ import java.util.concurrent.CountDownLatch
 
 @RunWith(AndroidJUnit4::class)
 class CallLogTest {
-    private val  TAG = "CallLogTest"
+    private val TAG = "CallLogTest"
 
     lateinit var testContext: Context
     lateinit var manager: CallLogManager
@@ -103,7 +102,7 @@ class CallLogTest {
 
 
     @Test
-    fun testAsyncAnko() = runBlocking{
+    fun testAsyncAnko() = runBlocking {
         val deferredLogs = manager.queryAsyncAnko()
         assertNotNull("returned null", deferredLogs)
         val actualLogs = deferredLogs?.await()
@@ -121,8 +120,8 @@ class CallLogTest {
                     .doOnComplete {
                         Log.d(TAG, "rx complete")
                     }
-                    .subscribe {
-                        x -> Log.d(TAG, "got " + x.toString())
+                    .subscribe { x ->
+                        Log.d(TAG, "got " + x.toString())
                         success = true
                     }
             source.awaitLast()
@@ -135,14 +134,13 @@ class CallLogTest {
     @Test
     fun testRxSqBrite() {
         val latch = CountDownLatch(1)
-        var gotList = ArrayList<CallLogDao> ()
+        var gotList = ArrayList<CallLogDao>()
         manager.queryRxSqbrite().subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    list: List<CallLogDao> ->
-                    gotList.addAll( list)
+                .subscribe({ list: List<CallLogDao> ->
+                    gotList.addAll(list)
                     latch.countDown()
-        })
+                })
         latch.await()
         assertTrue("got some logs", gotList.size > 0)
     }

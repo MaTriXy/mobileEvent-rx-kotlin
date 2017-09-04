@@ -52,19 +52,13 @@ class CallLogsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     inner class CallLogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val name: TextView
-        val phone: TextView
-        val type: TextView
-        val date: TextView
-        val icon: ImageView
+        val name: TextView = itemView.findViewById(R.id.card_name)
+        val phone: TextView = itemView.findViewById(R.id.card_number)
+        val type: TextView = itemView.findViewById(R.id.card_type)
+        val date: TextView = itemView.findViewById(R.id.card_date)
+        val icon: ImageView = itemView.findViewById<ImageView>(R.id.card_icon)
 
-        init {
-            name = itemView.findViewById<TextView>(R.id.card_name)
-            phone = itemView.findViewById<TextView>(R.id.card_number)
-            type = itemView.findViewById<TextView>(R.id.card_type)
-            date = itemView.findViewById<TextView>(R.id.card_date)
-            icon = itemView.findViewById<ImageView>(R.id.card_icon)
-        }
+
     }
 
     companion object {

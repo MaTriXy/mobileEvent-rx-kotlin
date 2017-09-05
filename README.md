@@ -9,3 +9,8 @@ a recommended practices app to use Rx together with Kotlin and how it's all tied
 #### Talk 2 - Don't call us, We'll call(Log) you 
 We will go over using Content provider, DAO and tests with kotlin together with some flow from Rx covered in Talk 1.
 We will see how we got a CallLog with DAO and added tests to verify our work is up to standards.
+
+
+## Special note : 
+This app can erase your call log - Please use on Emulator only. 
+Using this code can erase your call log and/or add Fake calls. 
